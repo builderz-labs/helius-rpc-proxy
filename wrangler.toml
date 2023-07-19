@@ -1,3 +1,6 @@
 name = "helius-rpc-proxy"
 main = "./src/index.ts"
 compatibility_date = "2022-05-03"
+kv_namespaces = [
+  { binding = "RateLimit", id = "b72e3a1080c7491c90ba08f113881911" }
+]

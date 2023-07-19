@@ -1,10 +1,11 @@
 interface Env {
 	CORS_ALLOW_ORIGIN: string;
 	HELIUS_API_KEY: string;
+	RateLimit: KVNamespace;
 }
 
 export default {
-	async fetch(request: Request, env: Env) {
+	async fetch(request: Request, env: Env, event: FetchEvent) {
 		// If the request is an OPTIONS request, return a 200 response with permissive CORS headers
 		// This is required for the Helius RPC Proxy to work from the browser and arbitrary origins
 		// If you wish to restrict the origins that can access your Helius RPC Proxy, you can do so by
@@ -24,6 +25,18 @@ export default {
 			}
 		} else {
 			corsHeaders['Access-Control-Allow-Origin'] = '*';
+		}
+
+		const ip = request.headers.get('cf-connecting-ip');
+
+		if (ip) {
+			let requests: any = await env.RateLimit.get(ip);
+			if (requests !== null && requests > 1000) {
+				return new Response('Rate limit exceeded', { status: 429 });
+			} else {
+				let newRequests = (Number(requests) + 1).toString();
+				event.waitUntil(env.RateLimit.put(ip, newRequests, { expirationTtl: 3600 }));
+			}
 		}
 
 		if (request.method === 'OPTIONS') {
