@@ -1,7 +1,6 @@
 interface Env {
 	CORS_ALLOW_ORIGIN: string;
 	HELIUS_API_KEY: string;
-	RateLimit: KVNamespace;
 }
 
 export default {
@@ -27,18 +26,6 @@ export default {
 			corsHeaders['Access-Control-Allow-Origin'] = '*';
 		}
 
-		const ip = request.headers.get('cf-connecting-ip');
-
-		if (ip) {
-			let requests: any = await env.RateLimit.get(ip);
-			if (requests !== null && requests > 1000) {
-				return new Response('Rate limit exceeded', { status: 429 });
-			} else {
-				let newRequests = (Number(requests) + 1).toString();
-				event.waitUntil(env.RateLimit.put(ip, newRequests, { expirationTtl: 3600 }));
-			}
-		}
-
 		if (request.method === 'OPTIONS') {
 			return new Response(null, {
 				status: 200,
@@ -53,6 +40,8 @@ export default {
 
 		const { pathname, search } = new URL(request.url);
 		const payload = await request.text();
+
+		console.log('Request Method: ', JSON.parse(payload).method);
 
 		const url = `https://${
 			pathname === '/' ? 'mainnet.helius-rpc.com' : 'api.helius.xyz'
