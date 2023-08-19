@@ -39,15 +39,12 @@ export default {
 		}
 
 		const { pathname, search } = new URL(request.url);
-		console.log(pathname);
 
 		const payload = await request.text();
 
-		console.log('Request Method: ', JSON.parse(payload).method);
-
-		const url = `https://devnet.helius-rpc.com${pathname}?api-key=${env.HELIUS_API_KEY}${
-			search ? `&${search.slice(1)}` : ''
-		}`;
+		const url = `https://${
+			pathname === '/' ? 'devnet.helius-rpc.com' : 'api-devnet.helius.xyz'
+		}${pathname}?api-key=${env.HELIUS_API_KEY}${search ? `&${search.slice(1)}` : ''}`;
 
 		console.log(url);
 
