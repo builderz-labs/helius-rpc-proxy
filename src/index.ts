@@ -41,7 +41,7 @@ export default {
 		const { pathname, search } = new URL(request.url);
 		const payload = await request.text();
 
-		console.log('Request Method: ', JSON.parse(payload).method);
+		// console.log('Request Method: ', JSON.parse(payload).method);
 
 		const url = `https://${
 			pathname === '/' ? 'mainnet.helius-rpc.com' : 'api.helius.xyz'
